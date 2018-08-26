@@ -1,0 +1,19 @@
+---
+  - name: edit system.cfg
+    ini_file:
+      path: /opt/vtse/neurobase/etc/system.cfg
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+    with_items:
+      - { section: startup.jobs.adapter, option: executable, value: /opt/vtse/bin/python }
+      - { section: startup.jobs.adapter, option: cmdline_args, value: /opt/vtse/bin/autotrader_adapter_main.py --nbroot %(startup.virtualenv)s }
+      - { section: startup.jobs.autotrader, option: executable, value: /opt/vtse/bin/python }
+      - { section: startup.jobs.autotrader, option: cmdline_args, value: /opt/vtse/bin/autotrader_core_main.py --nbroot %(startup.virtualenv)s }
+      - { section: startup.jobs.epex_manager, option: executable, value: /opt/vtse/bin/python }
+      - { section: startup.jobs.epex_manager, option: cmdline_args, value: /opt/vtse/bin/epex_conmgr_main.py --nbroot %(startup.virtualenv)s }
+      - { section: startup.jobs.guard, option: executable, value: /opt/vtse/bin/python }
+      - { section: startup.jobs.guard, option: cmdline_args, value: /opt/vtse/bin/autotrader_guard_main.py --nbroot %(startup.virtualenv)s }
+      - { section: startup, option: virtualenv, value: /opt/vtse/neurobase }
+      - { section: startup, option: cwd, value: "%(virtualenv)s/var/run" }
+    notify: entedclient reload

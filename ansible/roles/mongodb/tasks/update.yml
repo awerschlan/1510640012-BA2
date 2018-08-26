@@ -1,0 +1,6 @@
+---
+- name: update mongodb to latest version in repository
+  yum:
+    name: mongodb-org
+    state: latest
+  notify: restart mongod

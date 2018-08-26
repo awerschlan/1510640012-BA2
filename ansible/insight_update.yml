@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - { role: insight_update_server_type }
+    - { role: insight_update_emergency_role, when: role.periotheus is defined or role.autotrader is defined }
+    - { role: insight_update_release, when role.periotheus is defined or role.autotrader is defined }
+  gather_facts: yes

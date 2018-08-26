@@ -1,0 +1,20 @@
+---
+- name: include update tasks
+  import_tasks: tasks/update.yml
+  tags:
+    - never
+    - update
+
+- name: no tags supplied
+  vars:
+    msg: |
+         WARNING: no tags were supplied, this role will not do anything without a tag
+
+         supported default tags (-t, --tags) should be:
+
+         update
+  debug:
+    msg:  "{{ msg.split('\n') }}"
+  changed_when: True
+  tags:
+    - untagged

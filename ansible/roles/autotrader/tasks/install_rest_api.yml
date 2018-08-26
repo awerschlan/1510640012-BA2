@@ -1,0 +1,34 @@
+---
+  - name: install apache package
+    yum:
+      name: httpd,openssl
+      state: present
+
+  - name: enable httpd service on startup
+    systemd:
+      name: httpd
+      enabled: yes
+
+  - name: create /var/www/html/autotrader_rest directory
+    file:
+      path: /var/www/html/autotrader_rest
+      state: directory
+    tags: rest-api
+
+  - name: copy autotrader_rest.wsgi
+    copy:
+      src: files/autotrader_rest.wsgi
+      dest: /var/www/html/autotrader_rest/autotrader_rest.wsgi
+      mode: 0644
+      owner: root
+    notify: check apache config
+    tags: rest-api
+
+  - name: create symlink /opt/vtse/bin/autotrader_rest_main.py
+    file:
+      src: /opt/vtse/bin/autotrader_rest_main.py
+      dest: /var/www/html/autotrader_rest/autotrader_rest_main.py
+      state: link
+      force: yes
+    notify: check apache config
+    tags: rest-api

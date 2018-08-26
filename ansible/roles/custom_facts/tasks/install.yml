@@ -1,0 +1,16 @@
+---
+- name: ensure custom facts directory exists
+  file:
+    path: /etc/ansible/facts.d
+    recurse: yes
+    state: directory
+
+- name: install custom facts scripts
+  copy:
+      src: files/etc/ansible/facts.d/
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+      owner: root
+  notify: rerun setup
+
+- meta: flush_handlers

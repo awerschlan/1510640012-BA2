@@ -1,0 +1,43 @@
+---
+  - name: set {{ item.name }} reference object type id for REST API request
+    set_fact:
+      # just to make the REST API Request more readable
+      "{{ item.name }}_objecttype_id": "{{ vars['insight_objecttype']['attribute'][item.name]['reference_object_type']['id'] }}"
+    tags:
+      - update
+      - install
+
+  - name: lookup {{ item.name }} version object key in insight
+    uri:
+      url: https://portal-test.visotech.com/jira/rest/insight/1.0/objecttype/{{ vars[item.name + '_objecttype_id'] }}/objects?query={{ vars[item.fact] }}
+      method: GET
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      return_content: yes
+      body_format: json
+    register: response
+    delegate_to: localhost
+    become: yes
+    become_user: awx
+    tags:
+      - update
+      - install
+
+  - name: update {{ item.name }} attribute in insight
+    uri:
+      url: https://portal-test.visotech.com/jira/rest/insight/1.0/object/{{ insight_object.key }}
+      method: PUT
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      body_format: json
+      body: "{{ lookup('template','templates/update_attribute_object.json') }}"
+      headers:
+        Content-Type: "application/json"
+    delegate_to: localhost
+    become: yes
+    become_user: awx
+    tags:
+      - update
+      - install

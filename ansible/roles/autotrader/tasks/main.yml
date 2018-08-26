@@ -1,0 +1,78 @@
+---
+- name: include install tasks
+  import_tasks: tasks/install.yml
+  tags:
+    - never
+    - install
+
+- name: include install REST API tasks
+  import_tasks: tasks/install_rest_api.yml
+  tags:
+    - never
+    - install
+
+- name: include configure tasks
+  import_tasks: tasks/configure.yml
+  tags:
+    - never
+    - configure
+
+- name: include configure REST API tasks
+  import_tasks: tasks/configure_rest_api.yml
+  tags:
+    - never
+    - configure
+
+- name: include update tasks
+  import_tasks: tasks/update.yml
+  tags:
+    - never
+    - update
+
+- name: include remove tasks
+  import_tasks: tasks/remove.yml
+  tags:
+    - never
+    - remove
+
+- name: start {{ service_name }}
+  command: /bin/true
+  notify: start {{ service_name }}
+  tags:
+    - never
+    - start
+
+- name: stop {{ service_name }}
+  command: /bin/true
+  notify: stop {{ service_name }}
+  tags:
+    - never
+    - stop
+
+- name: restart {{ service_name }}
+  command: /bin/true
+  notify: restart {{ service_name }}
+  tags:
+    - never
+    - restart
+
+- name: no tags supplied
+  vars:
+    msg: |
+         WARNING: no tags were supplied, this role will not do anything without a tag
+
+         supported default tags (-t, --tags) should be:
+
+         start
+         stop
+         restart
+
+         install
+         configure
+         update
+         remove
+  debug:
+    msg:  "{{ msg.split('\n') }}"
+  changed_when: True
+  tags:
+    - untagged

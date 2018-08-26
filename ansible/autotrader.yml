@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - { role: custom_facts }
+    - { role: mongodb, when: role.autotrader is defined, service_name: "mongod" }
+    - { role: autotrader, when: role.autotrader is defined, service_name: "autotrader" }
+    - { role: insight_update_release, when: role.autotrader is defined }

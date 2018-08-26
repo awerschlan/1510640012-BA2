@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Default Box = CentOS 7
+  config.vm.box="centos/7"
+  # Default Memory = 1GB 
+  config.vm.provider :virtualbox do |v|
+    v.memory = 1024
+    v.linked_clone = true
+  end
+  
+  # Ansible Tower
+  config.vm.define "tower" do |tower|
+    tower.vm.hostname ="tower"
+    tower.vm.box = "ansible/tower"
+    tower.vm.network "private_network", ip: "10.10.10.10"
+    config.vm.provider :virtualbox do |v|
+      v.memory = 2048
+      v.cpus = 2
+      v.linked_clone = false
+    end
+  end
+
+  # Servers
+  config.vm.define "server1" do |server1|
+    server1.vm.hostname="server1"
+    server1.vm.network "private_network", ip: "10.10.10.11"
+  end
+
+  config.vm.define "server2" do |server2|
+    server2.vm.hostname="server2"
+    server2.vm.network "private_network", ip: "10.10.10.12"
+  end
+
+  config.vm.define "server3" do |server3|
+    server3.vm.hostname="server3"
+    server3.vm.network "private_network", ip: "10.10.10.13"
+  end
+
+  # SSH Keys
+  id_rsa_pub = File.read("#{Dir.home}/.ssh/id_rsa.pub")
+
+  $script = <<-SCRIPT
+  echo \"#{id_rsa_pub}\" >> /home/vagrant/.ssh/authorized_keys
+  mkdir -m 0755 -p /root/.ssh
+  echo \"#{id_rsa_pub}\" >> /root/.ssh/authorized_keys
+  SCRIPT
+
+  config.vm.provision "copy ssh public key", type: "shell", inline: $script
+end

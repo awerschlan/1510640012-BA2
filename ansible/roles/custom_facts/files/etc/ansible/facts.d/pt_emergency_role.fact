@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# @Author: Andreas Werschlan <anw>
+# @Date:   2018-07-02T17:31:07+02:00
+# @Email:  anw@visotech.com
+# @Last modified by:   Andreas Werschlan
+# @Last modified time: 2018-08-03T12:47:49+02:00
+
+# source pt_functions to call get_nbroot
+source /etc/ansible/facts.d/include/pt_functions.sh
+NBROOT="$(get_nbroot)"
+# if $NBROOT is not a directory -> exit immediately
+[ ! -d "$NBROOT" ] && exit 0
+
+PT_EMERGENCY_ROLE_FILE="$NBROOT/var/data/emergency_role"
+
+# check if pt_emergency_role exists and is readable
+if [ -r "$PT_EMERGENCY_ROLE_FILE" ]; then
+    # if file exists -> read pt_emergency_role from file
+    pt_emergency_role=$(<$PT_EMERGENCY_ROLE_FILE)
+elif [ -d "$NBROOT" ]; then
+    # if file is missing, but NBROOT exists -> assume standalone
+    pt_emergency_role="standalone"
+fi
+
+case $pt_emergency_role in
+    master|slave|standalone)
+        # possible values should be: master, slave or standalone
+        # output in JSON format
+        echo "{ \"current\" : \"$pt_emergency_role\" }"
+        ;;
+    *)
+        echo "Error: Unknown Emergency Role $pt_emergency_role"
+        exit 1
+        ;;
+esac

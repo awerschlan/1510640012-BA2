@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo '[{'
+
+echo $(rpm -qa --queryformat '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}": \[\{ "name": "%{NAME}", "version": "%{VERSION}", "release": "%{RELEASE}", "arch": "%{ARCH}" \}\]\n' | paste -sd,)
+
+echo '}]'
+

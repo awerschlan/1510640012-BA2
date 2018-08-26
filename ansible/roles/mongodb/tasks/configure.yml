@@ -1,0 +1,49 @@
+---
+- name: set SELinux to permissive mode
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: set params for autotrader ONE
+  set_fact:
+    memory: 2
+  when: autotrader_license == "one"
+
+- name: set params for autotrader EXPERT
+  set_fact:
+    memory: 4
+  when: autotrader_license == "expert"
+
+- name: set params for autotrader PRO
+  set_fact:
+    memory: 8
+  when: autotrader_license == "pro"
+
+- name: create /home/mongodb
+  file:
+    path: /home/mongodb
+    state: directory
+    owner: mongod
+    group: mongod
+    mode: 0755
+
+- name: install logrotation
+  template:
+    src: files/etc/logrotate.d/mongodb
+    dest: /etc/logrotate.d/mongodb
+
+- name: install mongod.conf
+  template:
+    src: templates/etc/mongod.conf.j2
+    dest: /etc/mongod.conf
+  notify: restart mongod
+
+- name: enable and start mongodb systemd service
+  systemd:
+    state: restarted
+    enabled: yes
+    name: mongod
+
+- name: include mongodb replica set tasks
+  include_tasks: tasks/configure_replica_set.yml
+  when: ansible_local.pt_emergency_role.current == "master"

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# @Author: Andreas Werschlan
+# @Date:   2017-8-6T9:31:46+1:-1
+# @Email:  anw@visotech.com
+# @Last modified by:   anw
+# @Last modified time: 2018-07-06T14:47:29+02:00
+
+# source pt_functions to call get_nbroot
+source /etc/ansible/facts.d/include/pt_functions.sh
+NBROOT="$(get_nbroot)"
+# if $NBROOT is not a directory -> exit immediately
+[ ! -d "$NBROOT" ] && exit 0
+
+SYSTEM_CFG="$NBROOT/etc/system.cfg"
+
+########################################################
+#           WARNING: THIS IS AN UGLY HACK              #
+########################################################
+# needs to be implemented correctly in the future      #
+# either: expand interpolations correctly (via python) #
+# or: convert system.cfg to JSON (via python)          #
+########################################################
+
+if [ -r "$SYSTEM_CFG" ]; then
+    # transpose interpolations
+    sed -e s'/%(\(.*\))s/{{ \1 }}/g;' "$SYSTEM_CFG"
+fi

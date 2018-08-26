@@ -1,0 +1,8 @@
+---
+  - name: copy httpd config
+    copy:
+      src: files/httpd/
+      dest: /etc/httpd/conf.d/
+      mode: 0644
+      owner: root
+    notify:  check apache config

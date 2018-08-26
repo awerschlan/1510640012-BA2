@@ -1,0 +1,21 @@
+---
+- name: flush handlers to ensure mongodb restart
+  meta: flush_handlers
+
+- name: wait for local mongodb to start
+  wait_for:
+    port: 27017
+    delay: 5
+
+- name: wait for remote mongodb to start
+  wait_for:
+    host: "{{ansible_local.pt_system_cfg.emergency_system.foreign_host}}"
+    port: 27017
+    sleep: 5
+    timeout: 10
+
+- name: create the file to initialize the mongod replica set
+  template: src=mongod_rs_initiate.js.j2 dest=/tmp/mongod_rs_initiate.js
+
+- name: initialize the replication set
+  shell: /usr/bin/mongo /tmp/mongod_rs_initiate.js

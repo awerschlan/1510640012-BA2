@@ -1,0 +1,23 @@
+---
+  - name: set periotheus version fact
+    set_fact:
+      atversion: "{{ ansible_local.pt_version.major }}.{{ ansible_local.pt_version.minor }}.*"
+
+  - name: install autotrader packages
+    yum:
+      name: "autotrader_core-{{ atversion }},autotrader_lib-{{ atversion }},autotrader_adapter-{{ atversion }},autotrader_guard-{{ atversion }},autotrader_rest-{{ atversion }},autotrader_periotheus-{{ atversion }}"
+      state: latest
+      enablerepo: vtse-testing,autotrader
+    notify:
+      - install autotrader processes
+      - rerun setup
+
+  - name: install connection manager packages
+    yum:
+      name: "epex_conmgr-{{ atversion }}"
+      state: latest
+      enablerepo: vtse-testing,autotrader
+    notify: install autotrader processes
+    when: autotrader_exchange == "epex"
+
+  - meta: flush_handlers

@@ -1,0 +1,12 @@
+---
+- name: update custom facts scripts directory
+  synchronize:
+    src: files/etc/ansible/facts.d/
+    dest: /etc/ansible/facts.d/
+    recursive: yes
+    delete: yes
+    group: no
+    owner: no
+  notify: rerun setup
+
+- meta: flush_handlers

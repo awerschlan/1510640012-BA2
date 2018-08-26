@@ -1,0 +1,34 @@
+---
+- name: include install tasks
+  import_tasks: tasks/install.yml
+  tags:
+    - never
+    - install
+
+- name: include update tasks
+  import_tasks: tasks/update.yml
+  tags:
+    - never
+    - update
+
+- name: include remove tasks
+  import_tasks: tasks/remove.yml
+  tags:
+    - never
+    - remove
+
+- name: no tags supplied
+  vars:
+    msg: |
+         WARNING: no tags were supplied, this role will not do anything without a tag
+
+         supported tags (-t, --tags) by this role:
+
+         install
+         update
+         remove
+  debug:
+    msg:  "{{ msg.split('\n') }}"
+  changed_when: True
+  tags:
+    - untagged

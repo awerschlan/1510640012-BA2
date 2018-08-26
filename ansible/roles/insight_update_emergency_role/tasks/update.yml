@@ -1,0 +1,33 @@
+---
+  - name: lookup emergency role ID in insight
+    uri:
+      url: https://portal-test.visotech.com/jira/rest/insight/1.0/objecttype/{{ insight_objecttype.attribute.current_emergency_role.reference_object_type.id }}/objects?query={{ ansible_local.pt_emergency_role.current }}
+      method: GET
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      return_content: yes
+      body_format: json
+    register: current_emergency_role
+    delegate_to: localhost
+
+  - name: set insight current emergency role object key
+    set_fact:
+      attribute_object_key: "{{ current_emergency_role.json[0].objectKey }}"
+
+  - name: set insight current emergency role attribute ID
+    set_fact:
+      attribute_id: "{{ insight_objecttype.attribute.current_emergency_role.id }}"
+
+  - name: update current emergency role in insight
+    uri:
+      url: https://portal-test.visotech.com/jira/rest/insight/1.0/object/{{ insight_object.key }}
+      method: PUT
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      body_format: json
+      body: "{{ lookup('template','templates/update_attribute_object.json') }}"
+      headers:
+        Content-Type: "application/json"
+    delegate_to: localhost

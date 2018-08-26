@@ -1,0 +1,59 @@
+---
+  - name: set insight server type from ansible facts (virtual)
+    set_fact:
+     server_type: "{{ ansible_virtualization_type }}: {{ ansible_virtualization_role }}"
+    when: ansible_virtualization_type is defined
+
+  - name: "on KVM Hosts: check if libvirtd is running"
+    command: "systemctl status libvirtd"
+    register: status_libvirtd
+    failed_when: false
+    changed_when: false
+    when: ansible_virtualization_type == "kvm" and ansible_virtualization_role == "host"
+
+  # - name: "on KVM Hosts: get the list of guests"
+  #   virt: command=list_vms
+  #   register: virt_vms
+  #   when: ansible_virtualization_type == "kvm" and ansible_virtualization_role == "host" and ( status_libvirtd.rc is defined and status_libvirtd.rc == 0 )
+  #
+  # - name: "on KVM Hosts: check if there are any guests -> if not = this is a physical server"
+  #   set_fact: kvm_guests
+  #   when: ansible_virtualization_type == "kvm" and ansible_virtualization_role == "host" and ( status_libvirtd.rc is defined and status_libvirtd.rc == 0 ) and virt_vms.list_vms|length > 0
+
+  - name: set insight server type (physical)
+    set_fact:
+     server_type: "physical"
+    when: ansible_virtualization_type is not defined or ( status_libvirtd.rc is defined and status_libvirtd.rc != 0 )
+
+  - name: lookup server type ID in insight
+    uri:
+      url: "https://portal-test.visotech.com/jira/rest/insight/1.0/objecttype/{{ insight_objecttype.attribute.server_type.reference_object_type.id }}/objects?query={{ server_type|urlencode }}"
+      method: GET
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      return_content: yes
+      body_format: json
+    register: response
+    delegate_to: localhost
+
+  - name: set attribute object key from response
+    set_fact:
+      attribute_object_key: "{{ response.json[0].objectKey }}"
+
+  - name: set attribute id
+    set_fact:
+      attribute_id: "{{ insight_objecttype.attribute.server_type.id }}"
+
+  - name: update attribute insight
+    uri:
+      url: https://portal-test.visotech.com/jira/rest/insight/1.0/object/{{ insight_object.key }}
+      method: PUT
+      user: USERNAME
+      password: PASSWORD
+      force_basic_auth: yes
+      body_format: json
+      body: "{{ lookup('template','templates/update_attribute_object.json') }}"
+      headers:
+        Content-Type: "application/json"
+    delegate_to: localhost

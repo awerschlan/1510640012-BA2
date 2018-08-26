@@ -1,0 +1,8 @@
+{
+    "attributes": [{
+        "objectTypeAttributeId": "{{ vars['insight_objecttype']['attribute'][item.name]['id'] }}",
+        "objectAttributeValues": [{
+            "value": "{{ response.json[0].objectKey }}"
+        }]
+    }]
+}

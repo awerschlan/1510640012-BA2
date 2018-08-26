@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - { role: mongodb, when: role.autotrader is defined }
+  vars:
+    - service_name: mongod

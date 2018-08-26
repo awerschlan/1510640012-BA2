@@ -1,0 +1,13 @@
+---
+  - name: remove autotrader packages
+    yum:
+      name: "autotrader_core-*,autotrader_lib-*,autotrader_adapter-*,autotrader_guard-*,autotrader_rest-*,autotrader_periotheus-*"
+      state: absent
+      enablerepo: vtse-testing,autotrader
+
+  - name: install connection manager packages
+    yum:
+      name: "epex_conmgr-*"
+      state: absent
+      enablerepo: vtse-testing,autotrader
+    when: autotrader_exchange == "epex"

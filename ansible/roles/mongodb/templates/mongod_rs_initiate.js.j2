@@ -1,0 +1,3 @@
+rs.initiate();
+sleep(5000);
+rs.add({host: "{{ ansible_local.pt_system_cfg.emergency_system.foreign_host }}", priority: 0, hidden: true, votes: 0});

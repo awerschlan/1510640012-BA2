@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# @Author: Andreas Werschlan
+# @Date:   2017-8-6T8:30:6+1:-1
+# @Email:  anw@visotech.com
+# @Last modified by:   anw
+# @Last modified time: 2018-07-06T13:50:38+02:00
+
+# source pt_functions to call get_nbroot
+source /etc/ansible/facts.d/include/pt_functions.sh
+NBROOT="$(get_nbroot)"
+# if $NBROOT is not a directory -> exit immediately
+[ ! -d "$NBROOT" ] && exit 0
+
+echo "{ \"nbroot\" : \"$NBROOT\" }"

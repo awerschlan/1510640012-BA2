@@ -1,0 +1,8 @@
+{
+    "attributes": [{
+        "objectTypeAttributeId": "{{ attribute_id }}",
+        "objectAttributeValues": [{
+            "value": "{{ attribute_object_key }}"
+        }]
+    }]
+}

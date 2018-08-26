@@ -1,0 +1,27 @@
+---
+- name: Re-run setup to use custom facts
+  setup: ~
+
+- name: convert version dict to release schema string
+  set_fact:
+    test: test
+    "{{ item.name }}_release":  "{{ item.release_prefix }}{{ vars['ansible_local'][item.name]['major'] }}.{{ vars['ansible_local'][item.name]['minor'] }}.{{ vars['ansible_local'][item.name]['patch'] }}"
+  when: ansible_local[item.name]['major'] is defined
+  loop:
+    - { name: pt_version, release_prefix: 'V'}
+    - { name: ente_version, release_prefix: ''}
+    - { name: at_version, release_prefix: 'V'}
+  tags:
+    - update
+    - install
+
+- name: update release via insight loop
+  include_tasks: tasks/update_insight_loop.yml
+  when: vars[item.fact] is defined
+  loop:
+    - { name: 'periotheus_release', fact: 'pt_version_release' }
+    - { name: 'ente_release', fact: 'ente_version_release' }
+    - { name: 'autotrader_release', fact: 'at_version_release' }
+  tags:
+    - update
+    - install

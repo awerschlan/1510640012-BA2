@@ -1,0 +1,26 @@
+---
+- name: stop and disable mongodb systemd service
+  systemd:
+    state: stopped
+    enabled: no
+    name: mongod
+
+- name: remove mongodb rpm package
+  yum:
+    name: mongodb-org
+    state: removed
+
+- name: remove mongod.conf
+  file:
+    path: /etc/mongod.conf
+    state: absent
+
+- name: remove /home/mongodb
+  file:
+    path: /home/mongodb
+    state: absent
+
+- name: remove logrotation
+  file:
+    path: /etc/logrotate.d/mongodb
+    state: absent

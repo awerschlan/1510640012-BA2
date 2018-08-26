@@ -1,0 +1,12 @@
+#!/bin/bash
+# source pt_functions to call get_nbroot
+source /etc/ansible/facts.d/include/pt_functions.sh
+NBROOT="$(get_nbroot)"
+# if $NBROOT is not a directory -> exit immediately
+[ ! -d "$NBROOT" ] && exit 0
+
+[ -r $NBROOT/bin/activate ] || exit 0
+
+. $NBROOT/bin/activate
+
+python -c "from vtconfig.pkgversion import *; import json; major,minor,patch = VERSION.split('.'); print json.dumps({'major':major, 'minor':minor, 'patch':patch})"

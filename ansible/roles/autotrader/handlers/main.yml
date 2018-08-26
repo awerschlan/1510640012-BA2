@@ -1,0 +1,66 @@
+---
+  - name: stop {{ service_name }}
+    systemd:
+      name: "{{ service_name }}"
+      state: stopped
+    listen: stop {{ service_name }}
+
+  - name: start {{ service_name }}
+    systemd:
+      name: "{{ service_name }}"
+      state: started
+      enabled: yes
+    listen: start {{ service_name }}
+
+  - name: restart {{ service_name }}
+    systemd:
+      name: "{{ service_name }}"
+      state: restarted
+    listen: restart {{ service_name }}
+
+  - name: check apache config
+    shell: httpd -t
+    changed_when: True
+    listen: install autotrader processes
+    ignore_errors: yes
+    notify: restart apache
+
+  - name: restart apache
+    service:
+      name: httpd
+      state: restarted
+
+  - name: cleanup tmp processes
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - /tmp/install.py
+      - /tmp/New_PT_processes.zip
+    listen: install autotrader processes
+    when: ansible_local.pt_emergency_role.current == "master" or ansible_local.pt_emergency_role.current == "standalone"
+
+  - name: extract autotrader processes
+    unarchive:
+      src: /opt/vtse/share/autotrader_periotheus/autoTRADER_processes.zip
+      dest: /tmp
+      remote_src: yes
+    become: yes
+    become_user: vt
+    listen: install autotrader processes
+    when: ansible_local.pt_emergency_role.current == "master" or ansible_local.pt_emergency_role.current == "standalone"
+
+  - name: install autotrader processes
+    shell: source /opt/vtse/neurobase/bin/activate && enteclient /tmp/install.py /tmp/New_PT_processes.zip
+    become: yes
+    become_user: vt
+    listen: install autotrader processes
+    when: ansible_local.pt_emergency_role.current == "master" or ansible_local.pt_emergency_role.current == "standalone"
+
+  - name: entedclient reload
+    shell: entedclient reload
+    when: ansible_local.pt_emergency_role.current == "master" or ansible_local.pt_emergency_role.current == "standalone"
+
+  - name: Re-run setup to use custom facts
+    setup: ~
+    listen: rerun setup
